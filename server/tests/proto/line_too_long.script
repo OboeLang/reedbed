@@ -1,0 +1,6 @@
+# a line that never terminates, past the 1024-octet cap
+< 1
+> dijabon katare/1 oboe/0.1
+< 1
+>rep 1100 a
+<all

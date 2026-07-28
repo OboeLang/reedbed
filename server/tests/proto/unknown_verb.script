@@ -1,0 +1,6 @@
+# an unrecognised verb is a client error, and wuwoji always closes
+< 1
+> dijabon katare/1 oboe/0.1
+< 1
+> frobnicate
+<all

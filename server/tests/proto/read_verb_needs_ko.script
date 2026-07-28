@@ -1,0 +1,6 @@
+# a known read verb sent without its ko prefix is not that verb
+< 1
+> dijabon katare/1 oboe/0.1
+< 1
+> besal x
+<all

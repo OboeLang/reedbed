@@ -1,0 +1,6 @@
+# LF alone does not terminate a line
+< 1
+> dijabon katare/1 oboe/0.1
+< 1
+>lf ko besal x
+<all

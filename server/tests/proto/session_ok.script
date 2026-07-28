@@ -1,0 +1,8 @@
+# a well-formed session: handshake, a miss, a clean close
+< 1
+> dijabon katare/1 oboe/0.1
+< 1
+> ko besal nosuch
+< 1
+> koja
+< 1
