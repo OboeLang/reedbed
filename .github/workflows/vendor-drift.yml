@@ -1,0 +1,66 @@
+# SPDX-License-Identifier: GPL-2.0-only
+# © 2026 Sushii64
+# © 2026 robinpie
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+
+# common/ is canonical; the Oboe compiler carries a vendored copy under
+# compiler/src/. Each repository checks its own copy against its own manifest
+# on every push, which catches the usual mistake -- editing a copy in place --
+# immediately and locally.
+#
+# What that cannot catch is a change made here and never re-vendored. This job
+# does, by fetching the other repository and diffing.
+#
+# It is deliberately scheduled rather than blocking. A required check that
+# depends on another repository's default branch couples two release trains:
+# reedbed could not merge a common/ change until oboe had already vendored it,
+# and oboe could not vendor it until reedbed had merged. That deadlocks. Drift
+# is worth knowing about, not worth blocking on.
+
+name: vendor drift
+
+on:
+  schedule:
+    - cron: '17 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  drift:
+    name: common/ vs oboe compiler/src/
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch the oboe repository
+        run: git clone --depth 1 https://github.com/OboeLang/oboe.git /tmp/oboe
+
+      - name: Compare the vendored copies
+        run: |
+          status=0
+          for f in sha256 izim record kabuk projectjson; do
+            for ext in c h; do
+              if ! diff -u "common/$f.$ext" "/tmp/oboe/compiler/src/$f.$ext"; then
+                echo "::warning file=common/$f.$ext::drifted from the vendored copy in oboe"
+                status=1
+              fi
+            done
+          done
+          if [ $status -ne 0 ]; then
+            echo
+            echo "common/ and oboe's compiler/src/ disagree."
+            echo "If the change was made here, re-vendor it into oboe:"
+            echo "  cp common/*.{c,h} ../oboe/compiler/src/"
+            echo "  cp common/MANIFEST.sha256 ../oboe/compiler/src/VENDOR.sha256"
+          fi
+          exit $status
