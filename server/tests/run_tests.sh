@@ -23,6 +23,12 @@ note_pass() { echo "PASS $1"; pass=$((pass + 1)); }
 note_fail() { echo "FAIL $1"; fail=$((fail + 1)); }
 note_skip() { echo "SKIP $1 ($2)"; skip=$((skip + 1)); }
 
+# BSD wc right-aligns its count in a field, so `wc -c < f` is "      59" on
+# macOS where GNU gives "59". Interpolated into a request line that padding
+# becomes a run of spaces, and katare allows exactly one SP between tokens --
+# so it turns every kyx line into a framing error, on that host only.
+filesize() { wc -c < "$1" | tr -d '[:space:]'; }
+
 # ---- offline unit tests ------------------------------------------------
 
 if ./bin/t_common; then
@@ -410,11 +416,11 @@ if start_server; then
 	tok="$($A mint-token robin 2>/dev/null)"
 	mtok="$($A mint-token mallory 2>/dev/null)"
 
-	n="$(wc -c < "$pk/a.kabuk")"
+	n="$(filesize "$pk/a.kabuk")"
 	sema="$(./bin/sema "$pk/a.kabuk" | cut -d' ' -f1)"
-	n2="$(wc -c < "$pk/b.kabuk")"
+	n2="$(filesize "$pk/b.kabuk")"
 	sema2="$(./bin/sema "$pk/b.kabuk" | cut -d' ' -f1)"
-	nc="$(wc -c < "$pk/c.kabuk")"
+	nc="$(filesize "$pk/c.kabuk")"
 	semac="$(./bin/sema "$pk/c.kabuk" | cut -d' ' -f1)"
 
 	# Ends with koja rather than reading to close: the server holds an idle
