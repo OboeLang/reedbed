@@ -2,7 +2,7 @@
 
 The package repository for [Oboe](https://github.com/OboeLang/oboe).
 
-Reedbed serves packages over *katare*, a line protocol on TCP port 440. Packages travel as *kabuk* archives, which is an uncompressed, deterministic format where the same source tree always produces the same octets and therefore the same digest.
+Reedbed serves packages over *katare*, a line protocol on TCP port 440. Packages travel as *kabuk* archives, which is an uncompressed, deterministic format.
 
 - [KATARE.md](KATARE.md): the protocol. Normative.
 - [KABUK.md](KABUK.md): the archive format. Normative.
