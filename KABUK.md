@@ -55,7 +55,7 @@ Directories are implicit. There are no directory entries, directories only exist
 
 ### 3.1 Ordering
 
-Entries MUST be sorted by path, ascending, comparing octets, meanin something like a `memcmp` ordering, not a locale collation and not a Unicode collation. A packer that sorts with `strcoll` produces different archives in different locales, which defeats the entire point of the format.
+Entries MUST be sorted by path, ascending, comparing octets, meaning a `memcmp` ordering, not a locale collation and not a Unicode collation. A packer that sorts with `strcoll` produces different archives in different locales, which defeats the entire point of the format.
 
 Each path MUST be strictly greater than the one before it. Equal paths are therefore forbidden, which is what makes duplicate entries impossible.
 
@@ -100,11 +100,18 @@ It MUST refuse, rather than silently skip or follow, anything it cannot represen
 
 Exclusions are applied while walking. The reference packer (`oboe publish`) always excludes, with no way to turn it off:
 
-```
-.git/  .oboe/  dist/  *.o  *.kate-swp  .DS_Store
-```
+| | |
+|---|---|
+| `.git/`, `.oboe/` | at any depth: tool state, never source |
+| `dist/` | **top level only** |
+| `*.o`, `*.kate-swp`, `.DS_Store` | at any depth |
+| any other name beginning with `.` | top level only, except `.oboeignore` itself |
 
-plus any top-level entry whose name begins with `.`, except `.oboeignore` itself. Further exclusions come from `.oboeignore` in the package root: one glob per line, `#` for comments, `!` to negate an earlier pattern.
+`dist` is deliberately not excluded at depth. A package may legitimately have a
+`src/dist/` of its own, and dropping it would produce an archive that is
+well-formed, reproducible, and quietly missing source.
+
+Further exclusions come from `.oboeignore` in the package root: one glob per line, `#` for comments, `!` to negate an earlier pattern, and a trailing `/` to match directories only. A pattern is tested against both the full relative path and the entry's own name, so `notes.md` and `docs/notes.md` both work.
 
 Because exclusions are part of what determines the octets, two packers agree only if they agree on exclusions. A publisher who cares about reproducibility should publish from a clean checkout and record the printed `sema`.
 
@@ -139,7 +146,7 @@ sha256:26f21312d1f381d3ff37b4a14ab4dc4756bab9e3a76c0923027502c6c0bfbc24
 As text, with `¶` marking each LF:
 
 ```
-kabuk1¶main.oboe¶13¶print("hi")
+kabuk1¶main.oboe¶12¶print("hi")
 ¶project.jsonc¶3¶{}
 ¶sampura¶
 ```
